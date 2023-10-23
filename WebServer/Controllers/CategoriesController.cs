@@ -11,28 +11,29 @@ public class CategoriesController : ControllerBase
     private readonly IDataService _dataService;
     private readonly LinkGenerator _linkGenerator;
 
-    public CategoriesController(IDataService dataService, LinkGenerator linkGenerator)
-    {
-        _dataService = dataService;
-        _linkGenerator = linkGenerator;
-    }
+        public CategoriesController(IDataService dataService, LinkGenerator linkGenerator)
+        {
+            _dataService = dataService;
+            _linkGenerator = linkGenerator;
+        }
 
-    [HttpGet]
-    public IActionResult GetCetagories(string? name = null)
-    {
-        IEnumerable<CategoryModel> result = null;
-        if (!string.IsNullOrEmpty(name))
+        [HttpGet]
+        public IActionResult GetCetagories(string? name = null)
         {
-            result = _dataService.GetCategoriesByName(name)
-                .Select(CreateCategoryModel);
+        //IEnumerable<CategoryModel> result = null;
+        //if (!string.IsNullOrEmpty(name))
+        //{
+        //    result = _dataService.GetCategoriesByName(name)
+        //        .Select(CreateCategoryModel);
+        //}
+        //else
+        //{
+        //    result = _dataService.GetCategories()
+        //        .Select(CreateCategoryModel);
+        //}
+        //return Ok(result);
+        return Ok(_dataService.GetCategories());
         }
-        else
-        {
-            result = _dataService.GetCategories()
-                .Select(CreateCategoryModel);
-        }
-        return Ok(result);
-    }
     
     [HttpGet("{id}", Name = nameof(GetCategory))]
     public IActionResult GetCategory(int id)

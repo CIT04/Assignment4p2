@@ -1,9 +1,11 @@
+using DataLayer;
+
 var builder = WebApplication.CreateBuilder(args);
 
 
 // Add services to the container.
 builder.Services.AddMvcCore();
-
+builder.Services.AddSingleton<IDataService, DataService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

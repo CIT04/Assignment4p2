@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DataLayer.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataLayer;
 
-public class DataService
+public class DataService: IDataService
 {
     public IList<Category> GetCategories()
     {
@@ -185,9 +186,35 @@ public List<GetProductNameTest> GetProductByName(string nameSubString)
         }
     }
 
+    public IList<Product> GetProducts()
+    {
+        throw new NotImplementedException();
+    }
 
+    Product? IDataService.GetProduct(int id)
+    {
+        throw new NotImplementedException();
+    }
 
+    public void CreateCategory(Category category)
+    {
+        throw new NotImplementedException();
+    }
 
+    public bool UpdateCategory(Category category)
+    {
+        throw new NotImplementedException();
+    }
+
+    IList<ProductSearchModel> IDataService.GetProductByName(string search)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IList<Category> GetCategoriesByName(string name)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 
