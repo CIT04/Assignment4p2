@@ -137,7 +137,7 @@ public class DataServiceTests
     [Fact]
     public void Order_Object_HasIdDatesAndOrderDetails()
     {
-        var order = new Order();
+        var order = new Orders();
         Assert.Equal(0, order.Id);
         Assert.Equal(new DateTime(), order.Date);
         Assert.Equal(new DateTime(), order.Required);
