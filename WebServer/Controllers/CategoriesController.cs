@@ -52,13 +52,8 @@ public class CategoriesController : ControllerBase
     {
         var category = new Category
         {
-            Name = "Created",
-            Description = ""
-
-            /*
             Name = model.Name,
             Description = model.Description
-            */
         };
 
         _dataService.CreateCategory(category);
