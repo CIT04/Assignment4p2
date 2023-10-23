@@ -20,19 +20,19 @@ public class CategoriesController : ControllerBase
         [HttpGet]
         public IActionResult GetCetagories(string? name = null)
         {
-        //IEnumerable<CategoryModel> result = null;
-        //if (!string.IsNullOrEmpty(name))
-        //{
-        //    result = _dataService.GetCategoriesByName(name)
-        //        .Select(CreateCategoryModel);
-        //}
-        //else
-        //{
-        //    result = _dataService.GetCategories()
-        //        .Select(CreateCategoryModel);
-        //}
-        //return Ok(result);
-        return Ok(_dataService.GetCategories());
+        IEnumerable<CategoryModel> result = null;
+        if (!string.IsNullOrEmpty(name))
+        {
+            result = _dataService.GetCategoriesByName(name)
+                .Select(CreateCategoryModel);
+        }
+        else
+        {
+            result = _dataService.GetCategories()
+                .Select(CreateCategoryModel);
+        }
+        return Ok(result);
+      
         }
     
     [HttpGet("{id}", Name = nameof(GetCategory))]
@@ -44,7 +44,7 @@ public class CategoriesController : ControllerBase
             return NotFound();
         }
 
-        return Ok(CreateCategoryModel(category));
+        return Created($"api/categories/{category}", CreateCategoryModel(category));
     }
 
     [HttpPost]

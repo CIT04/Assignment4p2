@@ -198,7 +198,8 @@ public List<GetProductNameTest> GetProductByName(string nameSubString)
 
     public void CreateCategory(Category category)
     {
-        throw new NotImplementedException();
+        CreateCategory(category.Name, category.Description);
+        //throw new NotImplementedException();
     }
 
     public bool UpdateCategory(Category category)
