@@ -1,98 +1,197 @@
-﻿using DataLayer.Models;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.EntityFrameworkCore;
 
+namespace DataLayer;
 
-namespace DataLayer
+public class DataService
 {
-    public class DataService : IDataService
+    public IList<Category> GetCategories()
     {
-        private readonly List<Category> _categories = new List<Category>
+        var db = new NorthwindContex();
+        return db.Categories.ToList();
+    }
+
+    public Category GetCategory(int categoryId)
+    {
+        var db = new NorthwindContex();
+        return db.Categories.FirstOrDefault(x => x.Id == categoryId);
+
+    }
+
+    public bool DeleteCategory(Category category)
+    {
+        return DeleteCategory(category.Id);
+    }
+    public bool DeleteCategory(int categoryId)
+    {
+        var db = new NorthwindContex();
+        var category = db.Categories.FirstOrDefault(x => x.Id == categoryId);
+        if (category != null)
         {
-            new Category{ Id = 1, Name = "Beverages", Description = "Soft drinks, coffees, teas, beers, and ales"},
-            new Category{ Id = 2, Name = "Condiments", Description = "Sweet and savory sauces, relishes, spreads, and seasonings"},
-            new Category{ Id = 3, Name = "Confections", Description = "Desserts, candies, and sweet breads"},
-            new Category{ Id = 4, Name = "Dairy Products", Description = "Cheeses"},
-            new Category{ Id = 5, Name = "Grains/Cereals", Description = "Breads, crackers, pasta, and cereal"},
-            new Category{ Id = 6, Name = "Meat/Poultry", Description = "Prepared meats"},
-            new Category{ Id = 7, Name = "Produce", Description = "Dried fruit and bean curd"},
-            new Category{ Id = 8, Name = "Seafood", Description = "Seaweed and fish"}
+            db.Categories.Remove(category);
+            return db.SaveChanges() > 0;
+        }
+        return false;
+    }
+
+    public Category CreateCategory(string name, string description)
+    {
+        var db = new NorthwindContex();
+        var id = db.Categories.Max(x => x.Id) + 1;
+        var category = new Category
+        {
+            Id = id,
+            Name = name,
+            Description = description
         };
+        db.Add(category);
+        db.SaveChanges();
+        return category;
+    }
 
-        private readonly List<Product> _products = new List<Product>();
 
-
-        public DataService()
+    public bool UpdateCategory(int categoryId, string updatedName, string updatedDescription)
+    {
+        var db = new NorthwindContex();
+        var category = db.Categories.FirstOrDefault(x => x.Id == categoryId);
+        if (category != null)
         {
-            _products.Add(new Product { Id = 1, Name = "Chai", Category = GetCategory(1) });
-            _products.Add(new Product { Id = 2, Name = "Chang", Category = GetCategory(1) });
-            _products.Add(new Product { Id = 3, Name = "Aniseed Syrup", Category = GetCategory(2) });
-            _products.Add(new Product { Id = 4, Name = "Chef Anton's Cajun Seasoning", Category = GetCategory(2) });
-        }
+            category.Name = updatedName;
+            category.Description = updatedDescription;
 
-
-        public IList<Category> GetCategories()
-        {
-            return _categories;
-        }
-
-        public Category? GetCategory(int id)
-        {
-            return _categories.FirstOrDefault(x => x.Id == id);
-        }
-
-        public void CreateCategory(Category category)
-        {
-            var maxId = _categories.Max(x => x.Id);
-            category.Id = maxId + 1;
-            _categories.Add(category);
-        }
-
-        public bool UpdateCategory(Category category)
-        { 
-            var dbCat = GetCategory(category.Id);
-            if (dbCat == null)
-            {
-                return false;
-            }
-            dbCat.Name = category.Name;
-            dbCat.Description = category.Description;
+            db.Categories.Update(category);
+            db.SaveChanges();
             return true;
         }
+        return false;
+    }
 
-        public bool DeleteCategory(int id)
+    public ProductByCategory GetProduct(int productId)
+    {
+        using (var db = new NorthwindContex())
         {
-            var dbCat = GetCategory(id);
-            if (dbCat == null)
-            {
-                return false;
-            }
-            _categories.Remove(dbCat);
-            return true;
-        }
+            var product = db.Products
+                .Include(p => p.Category)
+                .Where(p => p.Id == productId)
+                .Select(p => new ProductByCategory
+                {
+                    Name = p.Name,
+                    CategoryName = p.Category.Name
+                })
+                .FirstOrDefault();
 
-
-        public IList<Product> GetProducts()
-        {
-            return _products;
-        }
-
-        public Product? GetProduct(int id)
-        {
-            return _products.FirstOrDefault(x => x.Id == id);
-        }
-
-        public IList<ProductSearchModel> GetProductByName(string search)
-        {
-            return _products
-                .Where(x => x.Name.ToLower().Contains(search.ToLower()))
-                .Select(x => new ProductSearchModel { ProductName = x.Name, CategoryName = x.Category.Name })
-                .ToList();
-        }
-
-        public IList<Category> GetCategoriesByName(string name)
-        {
-            return _categories.Where(x => x.Name.Contains(name)).ToList();
+            return product;
         }
     }
+
+    public List<ProductByCategory> GetProductByCategory(int categoryId)
+    {
+        using (var db = new NorthwindContex())
+        {
+            var products = db.Products
+                .Where(p => p.CategoryId == categoryId)
+                .Select(p => new ProductByCategory
+                {
+                    Name = p.Name,
+                    CategoryName = p.Category.Name
+                })
+                .ToList();
+
+            return products;
+        }
+    }
+public List<GetProductNameTest> GetProductByName(string nameSubString)
+    {
+        var db = new NorthwindContex();
+
+        var products = db.Products
+                        .Include(p => p.Category)
+                        .Where(p => p.Name.Contains(nameSubString))
+                        .Select(p => new GetProductNameTest
+                        {
+           
+                            CategoryName = p.Category.Name,
+                            ProductName = p.Name,
+                            
+                        })
+                        .ToList();
+
+        return products;
+    }
+    public Orders GetOrder(int orderId)
+    {
+        using var db = new NorthwindContex();
+        var order = db.Orders
+            .Include(o => o.OrderDetails)
+            .ThenInclude(od => od.Product)
+            .ThenInclude(p => p.Category)
+            .FirstOrDefault(o => o.Id == orderId);
+
+        if (order == null)
+        {
+            throw new Exception($"Order with ID {orderId} not found.");
+        }
+
+        return order;
+    }
+    public IList<Orders>  GetOrders()
+    {
+        using var db = new NorthwindContex();
+        return db.Orders.ToList();
+    }
+   
+    public List<OrderDetailsById> GetOrderDetailsByOrderId(int orderId)
+    {
+        var db = new NorthwindContex();
+        using (db)
+        {
+            var orderDetails = db.OrderDetails
+                .Include(od => od.Product)
+                .Where(od => od.OrderId == orderId)
+                .Select(od => new OrderDetailsById()
+                {
+                    ProductName = od.Product.Name,
+                    UnitPrice = od.UnitPrice,
+                    Quantity = od.Quantity,
+                    Product = od.Product
+                })
+                .ToList();
+
+            return orderDetails;
+        }
+    }
+
+
+
+    public List<OrderDateUnitPriceQuantity> GetOrderDetailsByProductId(int productId)
+    {
+        using (var db = new NorthwindContex())
+        {
+            var orderDetails = db.OrderDetails
+                .Include(od => od.Product)
+                .Include(od => od.Order)
+                .Where(od => od.ProductId == productId)
+                .OrderBy(od => od.OrderId)
+                .Select(od => new OrderDateUnitPriceQuantity
+                {
+                    OrderId = od.OrderId,
+                    UnitPrice = od.UnitPrice,
+                    Quantity = od.Quantity,
+                    OrderDate = od.Order.Date,
+                    Order = od.Order
+                })
+                .ToList();
+
+            return orderDetails;
+        }
+    }
+
+
+
+
 }
+
+
+/* */
+
+
+

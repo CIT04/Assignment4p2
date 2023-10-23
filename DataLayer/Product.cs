@@ -1,15 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace DataLayer;
 
-namespace DataLayer
+public class Product
 {
-    public class Product
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public int CategoryId { get; set; }
+    public int UnitPrice { get; set; }
+    public string QuantityPerUnit { get; set; }
+    public int UnitsInStock { get; set; }
+    public Category Category { get; set; }
+
+
+    public override string ToString()
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public Category Category { get; set; }
+        return $"{Id}, {Name}, {Category}";
     }
 }
