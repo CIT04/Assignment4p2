@@ -82,12 +82,32 @@ public class CategoriesController : ControllerBase
     }
 
 
+    //[HttpPut("{id}")]
+    //public IActionResult UpdateCategory(CreateCategoryModel category)
+    //{
+    //    return Ok(_dataService.UpdateCategory(category.Name,category.Description));
+           
+    //}
+
+    [HttpDelete("{id}")]
+    public IActionResult DeleteData(int id)
+    {
+        var delete = _dataService.DeleteCategory(id);
+
+        if (!delete)
+        {
+            return NotFound(delete);
+        }
+        return Ok(delete);
+    }
+
 
     private CategoryModel CreateCategoryModel(Category category)
     {
         return new CategoryModel
         {
             //Url = $"http://localhost:5001/api/categories/{category.Id}",
+            
             Url = GetUrl(nameof(GetCategory), new { category.Id }),
             Name = category.Name,
             Description = category.Description
