@@ -204,7 +204,12 @@ public List<GetProductNameTest> GetProductByName(string nameSubString)
 
     public bool UpdateCategory(Category category)
     {
-        throw new NotImplementedException();
+        if (category != null)
+        {
+            // Uncomment the following line to delegate to the other method
+            return UpdateCategory(category.Id, category.Name, category.Description);
+        }
+        return true;
     }
 
     IList<ProductSearchModel> IDataService.GetProductByName(string search)

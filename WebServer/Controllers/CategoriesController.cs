@@ -44,7 +44,7 @@ public class CategoriesController : ControllerBase
             return NotFound();
         }
 
-        return Created($"api/categories/{category}", CreateCategoryModel(category));
+        return Ok(CreateCategoryModel(category));
     }
 
     [HttpPost]
@@ -60,6 +60,27 @@ public class CategoriesController : ControllerBase
 
         return Created($"api/categories/{category}", category);
     }
+    [HttpPut("{id}")]
+    public IActionResult UpdateCategory(int id, CategoryModel model)
+    {
+        // Check if the category with the specified ID exists
+        var existingCategory = _dataService.GetCategory(id);
+
+        if (existingCategory == null)
+        {
+            return NotFound(); // Return a 404 Not Found response if the category doesn't exist
+        }
+
+        // Update the properties of the existing category
+        existingCategory.Name = model.Name;
+        existingCategory.Description = model.Description;
+
+        // Call a method to update the category in your data service
+        _dataService.UpdateCategory(existingCategory);
+
+        return Ok(existingCategory); // Return a 200 OK response with the updated category
+    }
+
 
 
     private CategoryModel CreateCategoryModel(Category category)
